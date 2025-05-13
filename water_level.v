@@ -30,23 +30,23 @@ module water_level(
     output reg dfr
     );
     
-parameter [2:0]  D = 3'b101,
-          C0 = 3'b100,
-          C1 = 3'b011,
-          B0 = 3'b010,
-          B1 = 3'b001,
-          A = 3'b000;
+parameter [2:0]  A=3'd0,//water level is below s1
+    			 B0=3'd1,//water level has fallen to a level between s1 and s2
+    			 B1=3'd2,//water level has risen to a level between s1 and s2
+    			 C0=3'd3,//water level has fallen to a level between s2 and s3 
+    			 C1=3'd4,//water level has risen to a level between s2 and s3
+    			 D=3'd5; //water level is above s3
           
           
       reg[2:0] state, next_state;
       always@(*) begin
         case(state)
-            A : next_state = s[1]?B1:A ;
-            B1 : next_state = s[2]?C1:s[1]?B1:A ;
-            B0 : next_state = s[2]?C1:s[1]?B0:A ;
-            C0 : next_state = s[2]?C0:s[3]?D:B0 ;
-            C1 : next_state = s[2]?C1:s[3]?D:B0 ;
-            D : next_state = s[3]?D:C0 ;
+            A : next_state = s[1]?B1:A;
+            B0 : next_state = (s[2])?C1:(s[1]?B0:A);
+            B1 : next_state = (s[2])?C1:(s[1]?B1:A);
+            C0 : next_state = (s[3])?D:(s[2]?C0:B0);
+            C1 : next_state = (s[3])?D:(s[2]?C1:B0);
+            D : next_state = (s[3])?D:C0;
             
             default: next_state=3'bxxx;
             
